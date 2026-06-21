@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+
+  user-service:
+    build:
+      context: ./backend/user-service
+    container_name: user-service
+    ports:
+      - "3001:3001"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/ecommerce_users
+    depends_on:
+      - mongodb
+
+  product-service:
+    build:
+      context: ./backend/product-service
+    container_name: product-service
+    ports:
+      - "3002:3002"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/ecommerce_products
+    depends_on:
+      - mongodb
+
+  cart-service:
+    build:
+      context: ./backend/cart-service
+    container_name: cart-service
+    ports:
+      - "3003:3003"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/ecommerce_carts
+      PRODUCT_SERVICE_URL: http://product-service:3002
+    depends_on:
+      - mongodb
+      - product-service
+
+  order-service:
+    build:
+      context: ./backend/order-service
+    container_name: order-service
+    ports:
+      - "3004:3004"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/ecommerce_orders
+      PRODUCT_SERVICE_URL: http://product-service:3002
+    depends_on:
+      - mongodb
+      - product-service
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - product-service
+      - cart-service
+      - order-service
