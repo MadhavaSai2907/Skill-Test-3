@@ -1,348 +1,446 @@
-# E-Commerce Microservices Application
+# Deploy a Multi-Service Node.js E-Commerce Application Using Terraform and Docker
 
-A full-stack MERN e-commerce application built with microservices architecture, featuring 4 separate Node.js backend services and a React frontend.
+## Overview
 
-## 🏗️ Architecture Overview
+This project demonstrates the deployment of a microservices-based Node.js E-Commerce application on AWS using Terraform for infrastructure provisioning and Docker for containerization.
 
-This application demonstrates modern microservices architecture with the following components:
+The application consists of:
 
-```
-Frontend (React) → API Gateway → Microservices
-                                    ├── User Service (3001)
-                                    ├── Product Service (3002)
-                                    ├── Cart Service (3003)
-                                    └── Order Service (3004)
-```
+* Frontend Service
+* User Service
+* Product Service
+* Cart Service
+* Order Service
+* MongoDB Database
 
-## 🔧 Technology Stack
+All services are containerized using Docker and deployed on an AWS EC2 instance provisioned through Terraform.
 
-### Backend
-- **Runtime**: Node.js with Express.js
-- **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JWT tokens
-- **Architecture**: RESTful APIs with microservices
+---
 
-### Frontend
-- **Framework**: React 18
-- **Routing**: React Router
-- **State Management**: React Query + Context API
-- **HTTP Client**: Axios
-- **Styling**: CSS3 with responsive design
+# Architecture
 
-## 📦 Microservices
-
-### 1. User Service (Port 3001)
-- User registration and authentication
-- Profile management
-- JWT token generation and validation
-- User data persistence
-
-**Endpoints:**
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User authentication
-- `GET /api/auth/me` - Get current user
-- `GET /api/users/profile` - Get user profile
-- `PUT /api/users/profile` - Update user profile
-
-### 2. Product Service (Port 3002)
-- Product catalog management
-- Category management
-- Product search and filtering
-- Inventory tracking
-
-**Endpoints:**
-- `GET /api/products` - Get products with filtering/pagination
-- `GET /api/products/:id` - Get single product
-- `POST /api/products` - Create product (admin)
-- `PUT /api/products/:id` - Update product (admin)
-- `DELETE /api/products/:id` - Soft delete product (admin)
-- `GET /api/categories` - Get all categories
-- `POST /api/categories` - Create category (admin)
-
-### 3. Cart Service (Port 3003)
-- Shopping cart management
-- Add/remove/update cart items
-- Cart validation
-- Integration with Product Service
-
-**Endpoints:**
-- `GET /api/cart/:userId` - Get user's cart
-- `POST /api/cart/:userId/items` - Add item to cart
-- `PUT /api/cart/:userId/items/:productId` - Update cart item
-- `DELETE /api/cart/:userId/items/:productId` - Remove cart item
-- `DELETE /api/cart/:userId` - Clear entire cart
-- `POST /api/cart/:userId/validate` - Validate cart items
-
-### 4. Order Service (Port 3004)
-- Order creation and management
-- Payment processing simulation
-- Order status tracking
-- Integration with Cart and Product Services
-
-**Endpoints:**
-- `GET /api/orders/user/:userId` - Get user's orders
-- `GET /api/orders/:id` - Get single order
-- `POST /api/orders` - Create new order
-- `PUT /api/orders/:id/status` - Update order status
-- `DELETE /api/orders/:id` - Cancel order
-- `POST /api/payments/process` - Process payment
-- `POST /api/payments/refund` - Process refund
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 16+ and npm
-- MongoDB (local or cloud instance)
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone <repository-url>
-cd ecommerce-microservices
+```text
+Internet
+    │
+    ▼
+AWS EC2 (Ubuntu)
+    │
+    ├── Frontend Service    (Port 3000)
+    ├── User Service        (Port 3001)
+    ├── Product Service     (Port 3002)
+    ├── Cart Service        (Port 3003)
+    ├── Order Service       (Port 3004)
+    └── MongoDB             (Port 27017)
 ```
 
-2. **Install dependencies for each service**
-```bash
+---
 
-# Install User Service dependencies
-cd backend/user-service && npm install
+# Technologies Used
 
-# Install Product Service dependencies
-cd ../product-service && npm install
+* Node.js
+* Express.js
+* MongoDB
+* Docker
+* Docker Hub
+* Terraform
+* AWS EC2
+* AWS VPC
+* AWS Security Groups
 
-# Install Cart Service dependencies
-cd ../cart-service && npm install
+---
 
-# Install Order Service dependencies
-cd ../order-service && npm install
+# Project Structure
 
-# Install Frontend dependencies
-cd ../../frontend && npm install
-```
-
-3. **Set up environment variables**
-
-Create `.env` files in each service directory:
-
-**backend/user-service/.env:**
-```env
-PORT=3001
-MONGODB_URI=mongodb://localhost:27017/ecommerce_users
-JWT_SECRET=your-jwt-secret-key
-```
-
-**backend/product-service/.env:**
-```env
-PORT=3002
-MONGODB_URI=mongodb://localhost:27017/ecommerce_products
-```
-
-**backend/cart-service/.env:**
-```env
-PORT=3003
-MONGODB_URI=mongodb://localhost:27017/ecommerce_carts
-PRODUCT_SERVICE_URL=http://localhost:3002
-```
-
-**backend/order-service/.env:**
-```env
-PORT=3004
-MONGODB_URI=mongodb://localhost:27017/ecommerce_orders
-CART_SERVICE_URL=http://localhost:3003
-PRODUCT_SERVICE_URL=http://localhost:3002
-USER_SERVICE_URL=http://localhost:3001
-```
-
-**frontend/.env:**
-```env
-REACT_APP_USER_SERVICE_URL=http://localhost:3001
-REACT_APP_PRODUCT_SERVICE_URL=http://localhost:3002
-REACT_APP_CART_SERVICE_URL=http://localhost:3003
-REACT_APP_ORDER_SERVICE_URL=http://localhost:3004
-```
-
-### Running the Application
-
-
-** Run services individually**
-
-Terminal 1 - User Service:
-```bash
-cd backend/user-service && npm start
-```
-
-Terminal 2 - Product Service:
-```bash
-cd backend/product-service && npm start
-```
-
-Terminal 3 - Cart Service:
-```bash
-cd backend/cart-service && npm start
-```
-
-Terminal 4 - Order Service:
-```bash
-cd backend/order-service && npm start
-```
-
-Terminal 5 - Frontend:
-```bash
-cd frontend && npm start
-```
-
-The application will be available at:
-- Frontend: http://localhost:3000
-- User Service: http://localhost:3001
-- Product Service: http://localhost:3002
-- Cart Service: http://localhost:3003
-- Order Service: http://localhost:3004
-
-## 🎯 Features
-
-### User Features
-- **Authentication**: Register and login with JWT tokens
-- **Product Browsing**: View products with search, filtering, and pagination
-- **Shopping Cart**: Add, update, and remove items
-- **Checkout Process**: Complete order placement with shipping and payment
-- **Order Management**: View order history and track status
-- **Profile Management**: Update personal information and addresses
-
-### Admin Features (Future Enhancement)
-- Product and category management
-- Order status updates
-- Inventory management
-- User management
-
-### Technical Features
-- **Microservices Architecture**: Loosely coupled services
-- **RESTful APIs**: Standard HTTP methods and status codes
-- **Data Validation**: Input validation and error handling
-- **Cross-Service Communication**: HTTP-based service interactions
-- **Responsive Design**: Mobile-friendly user interface
-- **Error Handling**: Comprehensive error management
-- **Loading States**: User-friendly loading indicators
-
-## 📁 Project Structure
-
-```
+```text
 ecommerce-microservices/
 ├── backend/
 │   ├── user-service/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   ├── server.js
-│   │   └── package.json
 │   ├── product-service/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── server.js
-│   │   └── package.json
 │   ├── cart-service/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── server.js
-│   │   └── package.json
 │   └── order-service/
-│       ├── models/
-│       ├── routes/
-│       ├── server.js
-│       └── package.json
+│
 ├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── contexts/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── App.js
-│   │   └── index.js
-│   └── package.json
-├── package.json
+│
+├── terraform/
+│   ├── provider.tf
+│   ├── variables.tf
+│   ├── vpc.tf
+│   ├── security-group.tf
+│   ├── ec2.tf
+│   └── outputs.tf
+│
 └── README.md
 ```
 
-## 🔧 API Testing
+---
 
-You can test the APIs using tools like Postman or curl:
+## Application Setup and Dockerization
+
+## Objective
+
+Containerize all application services using Docker and verify they run successfully on the local machine before deployment to AWS.
+
+---
+
+## Services
+
+The application consists of the following services:
+
+| Service         | Port  |
+| --------------- | ----- |
+| Frontend        | 3000  |
+| User Service    | 3001  |
+| Product Service | 3002  |
+| Cart Service    | 3003  |
+| Order Service   | 3004  |
+| MongoDB         | 27017 |
+
+---
+
+## Dockerfile Creation
+
+A Dockerfile was created inside each service directory.
+
+Dockerfiles were created for:
+* user-service
+* product-service
+* cart-service
+* order-service
+* frontend
+
+---
+
+## Building Docker Images
+
+### User Service
 
 ```bash
-# Health check for all services
-curl http://localhost:3001/health
-curl http://localhost:3002/health
-curl http://localhost:3003/health
-curl http://localhost:3004/health
-
-# Register a new user
-curl -X POST http://localhost:3001/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"firstName":"John","lastName":"Doe","email":"john@example.com","password":"password123"}'
-
-# Get products
-curl http://localhost:3002/api/products
-
-# Get categories
-curl http://localhost:3002/api/categories
+docker build -t user-service:v1 .
 ```
 
-## 🚀 Deployment
+### Product Service
 
-### Production Considerations
-
-1. **Environment Variables**: Use proper environment variable management
-2. **Database**: Use MongoDB Atlas or other managed database services
-3. **Process Management**: Use PM2 or similar for process management
-4. **Load Balancing**: Implement load balancing for high availability
-5. **Monitoring**: Add logging and monitoring solutions
-6. **Security**: Implement rate limiting, CORS, and other security measures
-
-### Docker Deployment (Future Enhancement)
-
-Each service can be containerized with Docker:
-
-```dockerfile
-# Example Dockerfile for a service
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 3001
-CMD ["npm", "start"]
+```bash
+docker build -t product-service:v1 .
 ```
 
-## 🤝 Contributing
+### Cart Service
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+```bash
+docker build -t cart-service:v1 .
+```
 
-## 📝 License
+### Order Service
 
-This project is licensed under the MIT License.
+```bash
+docker build -t order-service:v1 .
+```
 
-## 🆘 Support
+### Frontend
 
-For support and questions:
-- Check the documentation
-- Review API endpoints and expected payloads
-- Ensure all services are running
-- Verify database connections
-- Check environment variables
+```bash
+docker build -t frontend:v1 .
+```
 
-## 🔮 Future Enhancements
+---
 
-- **API Gateway**: Centralized request routing and authentication
-- **Docker Containerization**: Full containerization with docker-compose
-- **Message Queues**: Async communication between services
-- **Caching**: Redis caching for improved performance
-- **Search Engine**: Elasticsearch for advanced product search
-- **File Upload**: Image upload and management
-- **Email Service**: Order confirmations and notifications
-- **Admin Dashboard**: Administrative interface
-- **Analytics**: Order and user analytics
-- **Payment Integration**: Real payment gateway integration
+## Verification
+
+Health endpoints were tested locally:
+
+```text
+http://localhost:3001/health
+```
+<img width="802" height="412" alt="Screenshot 2026-06-21 171353" src="https://github.com/user-attachments/assets/0003a9db-a425-4ec2-a75b-9ec3fecbb690" />
+
+```text
+http://localhost:3002/health
+```
+<img width="881" height="420" alt="Screenshot 2026-06-21 171413" src="https://github.com/user-attachments/assets/b28d05f4-79a1-4dfb-8b6d-18543931110c" />
+
+```text
+http://localhost:3003/health
+```
+<img width="617" height="357" alt="Screenshot 2026-06-21 171428" src="https://github.com/user-attachments/assets/407ca153-13f6-402b-8027-ab73caeb2371" />
+
+
+```text
+http://localhost:3004/health
+```
+<img width="635" height="366" alt="Screenshot 2026-06-21 171442" src="https://github.com/user-attachments/assets/ea30ed15-a22e-4dfe-98bc-6933f08c6902" />
+
+Frontend was verified at:
+
+```text
+http://localhost:3000
+```
+<img width="1912" height="1021" alt="Screenshot 2026-06-21 171311" src="https://github.com/user-attachments/assets/2803dfa2-cf70-41a5-91e5-36afbaa14d9b" />
+
+---
+
+## Docker Hub Push
+
+### Login
+
+```bash
+docker login
+```
+
+### Tag Images
+
+```bash
+docker tag user-service:v1 madhavasai2907/user-service:v1
+docker tag product-service:v1 madhavasai2907/product-service:v1
+docker tag cart-service:v1 madhavasai2907/cart-service:v1
+docker tag order-service:v1 madhavasai2907/order-service:v1
+docker tag frontend:v1 madhavasai2907/frontend:v1
+```
+
+### Push Images
+
+```bash
+docker push madhavasai2907/user-service:v1
+docker push madhavasai2907/product-service:v1
+docker push madhavasai2907/cart-service:v1
+docker push madhavasai2907/order-service:v1
+docker push madhavasai2907/frontend:v1
+```
+<img width="1901" height="461" alt="dokcerhub" src="https://github.com/user-attachments/assets/f2b0db09-582c-460d-a749-3509dace3253" />
+
+---
+
+# Infrastructure Provisioning Using Terraform
+
+Terraform provisions the following AWS resources:
+
+## VPC
+
+* CIDR Block: 10.0.0.0/16
+
+## Public Subnet
+
+* CIDR Block: 10.0.1.0/24
+
+## Internet Gateway
+
+Provides internet access to resources inside the VPC.
+
+## Route Table
+
+Routes internet traffic through the Internet Gateway.
+
+## Security Group
+
+Allowed Ports:
+
+| Port | Purpose         |
+| ---- | --------------- |
+| 22   | SSH             |
+| 3000 | Frontend        |
+| 3001 | User Service    |
+| 3002 | Product Service |
+| 3003 | Cart Service    |
+| 3004 | Order Service   |
+
+## EC2 Instance
+
+| Property      | Value                 |
+| ------------- | --------------------- |
+| AMI           | ami-01a00762f46d584a1 |
+| Instance Type | t3.small              |
+| Region        | ap-south-1            |
+
+---
+
+# Terraform Deployment
+
+## Initialize Terraform
+
+```bash
+terraform init
+```
+
+## Validate Configuration
+
+```bash
+terraform validate
+```
+
+## Review Execution Plan
+
+```bash
+terraform plan
+```
+
+## Deploy Infrastructure
+
+```bash
+terraform apply
+```
+<img width="1857" height="511" alt="Screenshot 2026-06-21 194340" src="https://github.com/user-attachments/assets/e262cd98-a59c-4d4b-b46b-151b163b4563" />
+
+## Destroy Infrastructure
+
+Once everything is tested, use below command to destory infa created using terraform.
+
+```bash
+terraform destroy
+```
+<img width="816" height="257" alt="Screenshot 2026-06-21 194039" src="https://github.com/user-attachments/assets/91497312-955f-4dd0-af34-583e0a51da85" />
+
+---
+
+# Docker Deployment on EC2
+
+## Create Docker Network
+
+```bash
+docker network create ecommerce-network
+```
+
+## Run MongoDB
+
+```bash
+docker run -d \
+--name mongodb \
+--network ecommerce-network \
+mongo:latest
+```
+
+## Run User Service
+
+```bash
+docker run -d \
+--name user-service \
+--network ecommerce-network \
+-p 3001:3001 \
+-e MONGODB_URI=mongodb://mongodb:27017/ecommerce_users \
+madhavasai2907/user-service:v1
+```
+
+## Run Product Service
+
+```bash
+docker run -d \
+--name product-service \
+--network ecommerce-network \
+-p 3002:3002 \
+-e MONGODB_URI=mongodb://mongodb:27017/ecommerce_products \
+madhavasai2907/product-service:v1
+```
+
+## Run Cart Service
+
+```bash
+docker run -d \
+--name cart-service \
+--network ecommerce-network \
+-p 3003:3003 \
+-e MONGODB_URI=mongodb://mongodb:27017/ecommerce_carts \
+-e PRODUCT_SERVICE_URL=http://product-service:3002 \
+madhavasai2907/cart-service:v1
+```
+
+## Run Order Service
+
+```bash
+docker run -d \
+--name order-service \
+--network ecommerce-network \
+-p 3004:3004 \
+-e MONGODB_URI=mongodb://mongodb:27017/ecommerce_orders \
+-e PRODUCT_SERVICE_URL=http://product-service:3002 \
+madhavasai2907/order-service:v1
+```
+
+## Run Frontend
+
+```bash
+docker run -d \
+--name frontend \
+--network ecommerce-network \
+-p 3000:3000 \
+madhavasai2907/frontend:v1
+```
+<img width="1902" height="915" alt="Screenshot 2026-06-21 195345" src="https://github.com/user-attachments/assets/5947f2b8-d5b7-4f02-8ede-859adaf73640" />
+
+---
+
+# Verification
+
+## Check Running Containers
+
+```bash
+docker ps
+```
+
+## Check Logs
+
+```bash
+docker logs user-service
+docker logs product-service
+docker logs cart-service
+docker logs order-service
+docker logs frontend
+```
+
+---
+
+# Application URLs
+
+
+## Frontend
+
+```text
+http://13.235.9.106:3000
+```
+<img width="1906" height="966" alt="ec2-1" src="https://github.com/user-attachments/assets/adfa4537-2f5b-4603-adea-bbd8839bd636" />
+
+
+## User Service
+
+```text
+http://13.235.9.106:3001/health
+```
+<img width="630" height="362" alt="3001" src="https://github.com/user-attachments/assets/015886e2-78ba-456f-8183-0f57f63be0ec" />
+
+
+## Product Service
+
+```text
+http://13.235.9.106:3002/health
+```
+<img width="737" height="261" alt="3002" src="https://github.com/user-attachments/assets/ec7a7b95-8d89-4ba5-b215-66e20bbb9643" />
+
+## Cart Service
+
+```text
+http://13.235.9.106:3003/health
+```
+<img width="771" height="312" alt="3003" src="https://github.com/user-attachments/assets/75492ca0-3831-4bc7-b0e8-e6f5de4b9dbc" />
+
+## Order Service
+
+```text
+http://13.235.9.106:3004/health
+```
+<img width="637" height="257" alt="3004" src="https://github.com/user-attachments/assets/7fd25163-212f-4cda-963e-cc2394a73d79" />
+
+---
+
+## Outcome
+
+Successfully deployed a containerized Node.js E-Commerce Microservices Application on AWS using Terraform and Docker.
+
+Achievements:
+
+* Created Dockerfiles for all services
+* Built and pushed images to Docker Hub
+* Provisioned AWS infrastructure using Terraform
+* Configured networking and security groups
+* Deployed MongoDB and application containers on EC2
+* Verified frontend and backend service accessibility
+* Achieved end-to-end deployment automation and accessibility
+
+---
+
