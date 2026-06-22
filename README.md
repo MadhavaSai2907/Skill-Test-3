@@ -103,11 +103,15 @@ A Dockerfile was created inside each service directory.
 
 Dockerfiles were created for:
 * user-service
+    backend --> user-service --> Dockerfile
 * product-service
+    backend --> product-service --> Dockerfile
 * cart-service
+    backend --> cart-service --> Dockerfile
 * order-service
+    backend --> order-service --> Dockerfile
 * frontend
-
+    frontend --> Dockerfile
 ---
 
 ## Building Docker Images
@@ -253,6 +257,8 @@ Allowed Ports:
 ---
 
 # Terraform Deployment
+
+All the terrform files are attached in **terrafrom** folder
 
 ## Initialize Terraform
 
